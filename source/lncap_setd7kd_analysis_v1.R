@@ -13,10 +13,20 @@ require(data.table)
 require(ggplot2)
 
 # Part I: Data----
-lData <- dir("data")
+# Move up one directory
+wd <- getwd()
+setwd("..")
+DATA_HOME <- paste(getwd(),
+                   "data/lncap.setd7kd",
+                   sep = "/")
+# Reset working directory
+setwd(wd)
+getwd()
+
+lData <- dir(DATA_HOME)
 lData
 
-dt1 <- fread(paste("data",
+dt1 <- fread(paste(DATA_HOME,
                    lData[1],
                    sep = "/"),
              skip = 4,
@@ -30,27 +40,31 @@ dt1 <- subset(dt1,
 dt1$`Gene ID`
 dt1
 
-dt4 <- fread(paste("data",
-                   lData[4],
+dt2 <- fread(paste(DATA_HOME,
+                   lData[3],
                    sep = "/"),
              skip = 5,
              header = TRUE)[, c(1, 3, 5, 6, 9, 13)]
-names(dt4)[1:2] <- c("Setd7",
+names(dt2)[1:2] <- c("Setd7",
                      "Setd7 PEITC")
-dt4 <- subset(dt4,
+dt2 <- subset(dt2,
               `Gene ID` != "" &
                 `Gene ID` != "-")
 
-dt4$`Gene ID`
-dt4
+dt2$`Gene ID`
+dt2
 
 # dtt <- merge(dt1,
-#              dt4,
+#              dt2,
 #              by = "Gene ID",
 #              all = TRUE)
 dtt <- merge(dt1,
-             dt4,
+             dt2,
              by = "Gene ID")
+dtt$LNCaP <- as.numeric(dtt$LNCaP)
+dtt$`LNCaP PEITC` <- as.numeric(dtt$`LNCaP PEITC`)
+dtt$Setd7 <- as.numeric(dtt$Setd7)
+dtt$`Setd7 PEITC` <- as.numeric(dtt$`Setd7 PEITC`)
 dtt
 
 # Heatmap: all 4 groups----
@@ -65,8 +79,6 @@ dtl$Group <- factor(dtl$Group,
                                "Setd7",
                                "LNCaP PEITC",
                                "Setd7 PEITC"))
-dtl$Readout <- as.numeric(dtl$Readout)
-range(dtl$Readout, na.rm = TRUE)
 dtl
 
 # Plot all annotated genes found in all 4 samples----
@@ -96,6 +108,52 @@ tiff(filename = "tmp/all_anno_genes.tiff",
      compression = "lzw+p")
 print(p0)
 graphics.off()
+
+# Hitmap of differences----
+dtt$`LNCaP - Setd7` <- dtt$LNCaP - dtt$Setd7
+dtt$`LNCaP PEITC - Setd7 PEITC` <- dtt$`LNCaP PEITC` - dtt$`Setd7 PEITC`
+
+dt.diff <- melt.data.table(dtt,
+                       id.vars = "Gene ID",
+                       measure.vars = 11:12,
+                       variable.name = "Group",
+                       value.name = "Log Diff")
+dt.diff$`Gene ID` <- factor(dt.diff$`Gene ID`)
+dt.diff$Group <- factor(dt.diff$Group,
+                        levels = c("LNCaP - Setd7",
+                                   "LNCaP PEITC - Setd7 PEITC"))
+dt.diff
+
+# Plot all annotated genes found in all 4 samples----
+p00 <- ggplot(data = dt.diff) +
+  geom_tile(aes(x =  Group,
+                y = `Gene ID`,
+                fill = `Log Diff`),
+            color = "black") +
+  scale_fill_gradient2(high = "red",
+                       mid = "black",
+                       low = "green",
+                       limit = range(dt.diff$`Log Diff`),
+                       name = "Log Diff") +
+  scale_x_discrete(expand = c(0, 0)) +
+  scale_y_discrete("Gene ID",
+                   expand = c(0, 0)) +
+  ggtitle("Celline Differences") +
+  theme(axis.text.x = element_text(angle = 20,
+                                   hjust = 1),
+        # legend.position = "top",
+        plot.title = element_text(hjust = 0.5))
+p00
+
+tiff(filename = "tmp/all_anno_genes_diffs.tiff",
+     height = 7,
+     width = 6,
+     units = 'in',
+     res = 300,
+     compression = "lzw+p")
+print(p00)
+graphics.off()
+
 
 # Genes orered by ratios---
 dtt$Ratio.x <- as.numeric(dtt$Ratio.x)

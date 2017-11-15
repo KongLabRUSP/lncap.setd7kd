@@ -14,4 +14,4 @@ May not care about the comparisons of these files.
 ### 11/14/2017
 * Downlowded data from Chao's email (***docs*** subfolder)    
 * Processed and merged LNCaP and Setd7 data sets    
-* 
+* Heatmaps of values and differences
