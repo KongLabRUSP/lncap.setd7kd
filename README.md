@@ -12,6 +12,10 @@ May not care about the comparisons of these files.
 
 ## Daily Logs
 ### 11/14/2017
-* Downlowded data from Chao's email (***docs*** subfolder)    
+* Downlowded data from Chao's emails and converted to CSV (***C:\git_local\data*** folder)    
 * Processed and merged LNCaP and Setd7 data sets    
 * Heatmaps of values and differences
+
+### 11/15/2017
+* Made hitmaps and Venn diagram    
+* ToDo: hitmap of (LNCaP - Setd7) vs. (Setd7 PEITC - Setd7)
