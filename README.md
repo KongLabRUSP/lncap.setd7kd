@@ -10,7 +10,19 @@
 Values of the 4 groups in the Excel files.    
 May not care about the comparisons of these files.    
 
+## Original data
+https://cloudbox.dls.rutgers.edu/?ShareToken=3DE3F0B9ADC4D74CD788C3B132556598C5C817B4
+From Christian Bixby, RUCDR, 11/17/2017
+
 ## Daily Logs
+### 11/20/2017
+* Finished data preprocessing    
+* Added hitmaps and Venn diagrams
+
+### 11/19/2017
+* Downloaded original files from RUCDR    
+* Started preprocessing
+
 ### 11/14/2017
 * Downlowded data from Chao's emails and converted to CSV (***C:\git_local\data*** folder)    
 * Processed and merged LNCaP and Setd7 data sets    
