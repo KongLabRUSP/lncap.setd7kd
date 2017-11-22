@@ -15,6 +15,9 @@ https://cloudbox.dls.rutgers.edu/?ShareToken=3DE3F0B9ADC4D74CD788C3B132556598C5C
 From Christian Bixby, RUCDR, 11/17/2017
 
 ## Daily Logs
+### 11/21/2017
+* Modified hitmaps and Venn diagrams
+
 ### 11/20/2017
 * Finished data preprocessing    
 * Added hitmaps and Venn diagrams
