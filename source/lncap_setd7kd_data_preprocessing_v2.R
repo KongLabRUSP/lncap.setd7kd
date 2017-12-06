@@ -147,6 +147,21 @@ graphics.off()
 # Pseudo-images of raw microarray chip----
 # par(mfrow=c(2,3),
 #     mai = c(0.1, 0.1, 0.1, 0.1))
+l1@manufacturer
+l1@intensityFile
+head(l1@assayData$exprs) # expressions matrix
+l1@phenoData@varMetadata
+l1@phenoData@data
+l1@phenoData@dimLabels
+l1@featureData@data
+l1@experimentData
+l1@annotation
+l1@protocolData
+l1@.__classVersion__
+
+# How is this plot constructed (tech)?
+oligo::image(l1,
+             which = 1)
 
 for (i in 1:6) {
   tiff(filename = paste("tmp/lncap_setd7_raw_expr_",
@@ -159,9 +174,9 @@ for (i in 1:6) {
        res = 300,
        compression = "lzw+p")
   
-  image(l1,
-        which = i,
-        transfo = rank)
+  oligo::image(l1,
+               which = i,
+               transfo = rank)
   
   graphics.off()
 }

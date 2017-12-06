@@ -15,6 +15,9 @@ https://cloudbox.dls.rutgers.edu/?ShareToken=3DE3F0B9ADC4D74CD788C3B132556598C5C
 From Christian Bixby, RUCDR, 11/17/2017
 
 ## Daily Logs
+### 12/02/2017
+* Added diff vs. mean plot and SD estimation, test stats and p-values for single-replica experiments (**lncap_setd7kd_analysis_v6.R**)
+
 ### 11/21/2017
 * Modified hitmaps and Venn diagrams
 
