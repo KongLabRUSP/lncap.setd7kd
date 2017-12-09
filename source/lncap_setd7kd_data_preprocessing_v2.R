@@ -204,6 +204,6 @@ write.csv(dt1,
 
 # Save R data----
 save(dt1,
-     file = "tmp/lncap_setd7_normilized_annotated.RData")
+     file = "data/lncap_setd7_normilized_annotated.RData")
 
 # sink()
