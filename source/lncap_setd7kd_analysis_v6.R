@@ -12,6 +12,8 @@
 
 require(data.table)
 require(ggplot2)
+require(VennDiagram)
+require(gridExtra)
 
 # Part I: Data----
 # Preprocessed data was created by 'WT_KDKD_data_preprocessing_v1.R'
@@ -39,29 +41,96 @@ colnames(dt1)[5:8] <- c("WT_PEITC",
                         "KD_PEITC",
                         "KD")
 
-# Part II: long data----
-dtl <- melt.data.table(dt1,
-                       id.vars = "SYMBOL",
-                       measure.vars = 5:8,
-                       variable.name = "Group",
-                       value.name = "Expression")
-dtl$SYMBOL <- factor(dtl$SYMBOL)
-dtl$Group <- factor(dtl$Group,
-                    levels = c("WT",
-                               "KD",
-                               "WT_PEITC",
-                               "KD_PEITC"))
-dtl
-summary(dtl)
+# Part II: p-Values for single-replica samples----
+# a. WT PEITC vs. WT----
+dt1$`Diff(WT PEITC, WT)` <- dt1$WT_PEITC - dt1$WT
+dt1$`Mean(WT PEITC, WT)` <- (dt1$WT_PEITC + dt1$WT)/2
 
-# Part III: compare cellines----
+tiff(filename = "tmp/lncap_marray_wtpeitc_vs_wt_diff_mean.tiff",
+     height = 8,
+     width = 8,
+     units = 'in',
+     res = 300,
+     compression = "lzw+p")
+plot(dt1$`Diff(WT PEITC, WT)` ~ dt1$`Mean(WT PEITC, WT)`,
+     xlab = "Means",
+     ylab = "Differences",
+     main = "LNCaP Microarray: WT PEITC vs. WT")
+graphics.off()
+
+# Regularize by the above within margin of epsilon
+epln <- 0.1
+dt1$wtpeitc.wt.sd <- NA
+
+for (i in 1:nrow(dt1)) {
+  tmp <- subset(dt1,
+                (`Mean(WT PEITC, WT)` <= dt1$`Mean(KD PEITC, KD)`[i] + epln) &
+                  (`Mean(WT PEITC, WT)` >= dt1$`Mean(KD PEITC, KD)`[i] - epln))
+  dt1$wtpeitc.wt.sd[i] <- sd(tmp$`Diff(WT PEITC, WT)`)
+}
+
+hist(dt1$`Diff(WT PEITC, WT)`, 100)
+
+m1 <- loess(dt1$wtpeitc.wt.sd ~ dt1$`Mean(WT PEITC, WT)`)
+dt1$wtpeitc.wt.sd.fit <- predict(m1,
+                                 newdata = data.frame(`Mean(WT PEITC, WT)` = dt1$`Mean(WT PEITC, WT)`))
+dt1
+dt1 <- dt1[order(dt1$`Mean(WT PEITC, WT)`), ]
+
+plot(dt1$sd ~ dt1$`Mean(KD PEITC, KD)`,
+     xlab = "Means",
+     ylab = "SD",
+     main = "WT PEITC vs. WT")
+lines(dt1$wtpeitc.wt.sd.fit ~ dt1$`Mean(WT PEITC, WT)`,
+      col = "red",
+      lw = 2)
+
+# Assuming t follows normal distribution (it does not!)
+# dt1$t <- dt1$`WT PEITC vs. WT`/dt1$sd
+# qqnorm(dt1$t)
+# abline(0, 1)
+
+dt1$t <- dt1$`WT PEITC vs. WT`/dt1$`Fitted SD`
+qqnorm(dt1$t)
+abline(0, 1)
+
+dt1$p <- 2*pnorm(-abs(dt1$t))
+hist(dt1$p)
+
+tmp <- subset(dt1,
+              p <= 0.05,
+              select = c(1:6, 9, 12, 17:20))
+tmp <- tmp[order(tmp$SYMBOL), ]
+tmp
+write.csv(tmp, file = "tmp/pvals.csv")
+
+
+
+
+
+# # Part II: long data----
+# dtl <- melt.data.table(dt1,
+#                        id.vars = "SYMBOL",
+#                        measure.vars = 5:8,
+#                        variable.name = "Group",
+#                        value.name = "Expression")
+# dtl$SYMBOL <- factor(dtl$SYMBOL)
+# dtl$Group <- factor(dtl$Group,
+#                     levels = c("WT",
+#                                "KD",
+#                                "WT_PEITC",
+#                                "KD_PEITC"))
+# dtl
+# summary(dtl)
+
+
 # Hitmap of differences----
 # Differences----
 dt1$`WT PEITC vs. WT` <- dt1$WT_PEITC - dt1$WT
 dt1$`KD PEITC vs. KD` <- dt1$KD_PEITC - dt1$KD
 dt1$`WT vs. KD` <- dt1$WT - dt1$KD
 
-# Sums----
+# Means----
 dt1$`Mean(WT PEITC, WT)` <- (dt1$WT_PEITC + dt1$WT)/2
 dt1$`Mean(KD PEITC, KD)` <- (dt1$KD_PEITC + dt1$KD)/2
 dt1$`Mean(WT, KD)` <- (dt1$WT + dt1$KD)/2
@@ -85,18 +154,18 @@ length(unique(dt.diff$SYMBOL))
 dt1$wt.vs.kd <- dt1$`WT PEITC vs. WT` - dt1$`KD PEITC vs. KD`
 hist(dt1$wt.vs.kd, 100)
 
-tmp <- subset(dt1,
-              (`WT PEITC vs. WT`>= 0.5 &
-                 `KD PEITC vs. KD` <= -0.5)  |
-                (`WT PEITC vs. WT` <= -0.5 &
-                   `KD PEITC vs. KD` >= 0.5))
-summary(tmp)
+peitc.nopeitc <- subset(dt1,
+                        (`WT PEITC vs. WT`>= 0.5 &
+                           `KD PEITC vs. KD` <= -0.5)  |
+                          (`WT PEITC vs. WT` <= -0.5 &
+                             `KD PEITC vs. KD` >= 0.5))
+summary(peitc.nopeitc)
 
-tmp <- tmp[, c("SYMBOL", 
-               "wt.vs.kd")]
-tmp
-tmp <- tmp[order(tmp$wt.vs.kd), ]
-ordered.genes <- as.character(tmp$SYMBOL)
+peitc.nopeitc <- peitc.nopeitc[, c("SYMBOL", 
+                                   "wt.vs.kd")]
+peitc.nopeitc
+peitc.nopeitc <- peitc.nopeitc[order(peitc.nopeitc$wt.vs.kd), ]
+ordered.genes <- as.character(peitc.nopeitc$SYMBOL)
 
 # gene.keep <- ordered.genes[c(1:20,
 #                              (length(ordered.genes) - 19):length(ordered.genes))]
@@ -104,16 +173,16 @@ ordered.genes <- as.character(tmp$SYMBOL)
 # Get all genes----
 gene.keep <- ordered.genes
 
-tmp <- subset(dt.diff,
-              SYMBOL %in% gene.keep)
+peitc.nopeitc <- subset(dt.diff,
+                        SYMBOL %in% gene.keep)
 
-tmp$SYMBOL <- factor(tmp$SYMBOL,
-                         levels = gene.keep)
-tmp
-summary(tmp)
+peitc.nopeitc$SYMBOL <- factor(peitc.nopeitc$SYMBOL,
+                               levels = gene.keep)
+peitc.nopeitc
+summary(peitc.nopeitc)
 
 # Plot----
-p01 <- ggplot(data = tmp) +
+p01 <- ggplot(data = peitc.nopeitc) +
   geom_tile(aes(x =  Group,
                 y = SYMBOL,
                 fill = `Diff of Logs`)) +
@@ -138,7 +207,7 @@ tiff(filename = "tmp/all_anno_genes_diffs_wt.vs.kd.tiff",
 print(p01)
 graphics.off() 
 
-# b. Diffs form KD----
+# b. Diffs from KD----
 dt.diff <- melt.data.table(dt1,
                            id.vars = "SYMBOL",
                            measure.vars = 10:11,
@@ -154,17 +223,17 @@ length(unique(dt.diff$SYMBOL))
 dt1$from.kd <- dt1$`WT vs. KD` - dt1$`KD PEITC vs. KD`
 hist(dt1$from.kd, 100)
 
-tmp <- subset(dt1,
-              (`KD PEITC vs. KD`>= 0.5 &
-                 `WT vs. KD` <= -0.5)  |
-                (`KD PEITC vs. KD` <= -0.5 &
-                   `WT vs. KD` >= 0.5))
+kdpeits.kd <- subset(dt1,
+                     (`KD PEITC vs. KD`>= 0.5 &
+                        `WT vs. KD` <= -0.5)  |
+                       (`KD PEITC vs. KD` <= -0.5 &
+                          `WT vs. KD` >= 0.5))
 
-tmp <- tmp[, c("SYMBOL", 
-               "from.kd")]
-tmp
-tmp <- tmp[order(tmp$from.kd), ]
-ordered.genes <- as.character(tmp$SYMBOL)
+kdpeits.kd <- kdpeits.kd[, c("SYMBOL", 
+                             "from.kd")]
+kdpeits.kd
+kdpeits.kd <- kdpeits.kd[order(kdpeits.kd$from.kd), ]
+ordered.genes <- as.character(kdpeits.kd$SYMBOL)
 
 # gene.keep <- ordered.genes[c(1:20,
 #                              (length(ordered.genes) - 19):length(ordered.genes))]
@@ -172,19 +241,19 @@ ordered.genes <- as.character(tmp$SYMBOL)
 # All genes
 gene.keep <- ordered.genes
 
-tmp <- subset(dt.diff,
-              SYMBOL %in% gene.keep)
+kdpeits.kd <- subset(dt.diff,
+                     SYMBOL %in% gene.keep)
 
-tmp$SYMBOL <- factor(tmp$SYMBOL,
-                     levels = gene.keep)
-tmp
+kdpeits.kd$SYMBOL <- factor(kdpeits.kd$SYMBOL,
+                            levels = gene.keep)
+kdpeits.kd
 
 # Plot----
-summary(tmp$`Diff of Logs`)
+summary(kdpeits.kd$`Diff of Logs`)
 # Reset upper bound to 2
-tmp$`Diff of Logs`[tmp$`Diff of Logs` > 2] <- 2
+kdpeits.kd$`Diff of Logs`[kdpeits.kd$`Diff of Logs` > 2] <- 2
 
-p02 <- ggplot(data = tmp) +
+p02 <- ggplot(data = kdpeits.kd) +
   geom_tile(aes(x =  Group,
                 y = SYMBOL,
                 fill = `Diff of Logs`)) +
@@ -208,6 +277,16 @@ tiff(filename = "tmp/all_anno_genes_diffs_from.kd.tiff",
      compression = "lzw+p")
 print(p02)
 graphics.off() 
+
+
+
+
+
+
+
+
+
+
 
 # p-Values for single-replica samples----
 # Plot differences vs. means in WT PEITC vs. WT----
