@@ -54,7 +54,7 @@ dtl$Group <- factor(dtl$Group,
 dtl
 summary(dtl)
 
-# Part III: Compare----
+# # Part III: Compare----
 # Hitmap of differences----
 # Differences----
 dt1$`WT PEITC vs. WT` <- dt1$WT_PEITC - dt1$WT
@@ -68,43 +68,43 @@ dt1$`Mean(WT, KD)` <- (dt1$WT + dt1$KD)/2
 
 dt1
 
-# p-Values for single-replica samples----
-# Plot differences vs. means in WT PEITC vs. WT----
-plot(dt1$`WT PEITC vs. WT` ~ dt1$`Mean(WT PEITC, WT)`,
-     xlab = "Means",
-     ylab = "Differences",
-     main = "WT PEITC vs. WT")
-# Method 1: Regularize by the above within margin of epsilon
-epln <- 0.1
-dt1$sd <- NA
-
-for (i in 1:nrow(dt1)) {
-  tmp <- subset(dt1,
-                (`Mean(WT PEITC, WT)` <= dt1$`Mean(KD PEITC, KD)`[i] + epln) &
-                  (`Mean(WT PEITC, WT)` >= dt1$`Mean(KD PEITC, KD)`[i] - epln))
-  dt1$sd[i] <- sd(tmp$`WT PEITC vs. WT`)
-}
-
-hist(dt1$`WT PEITC vs. WT`, 100)
-
-m1 <- loess(dt1$sd ~ dt1$`Mean(WT PEITC, WT)`)
-dt1$`Fitted SD` <- predict(m1,
-                           newdata = data.frame(`Mean(WT PEITC, WT)` = dt1$`Mean(WT PEITC, WT)`))
-dt1
-dt1 <- dt1[order(dt1$`Mean(WT PEITC, WT)`), ]
-
-plot(dt1$sd ~ dt1$`Mean(KD PEITC, KD)`,
-     xlab = "Means",
-     ylab = "SD",
-     main = "WT PEITC vs. WT")
-lines(dt1$`Fitted SD` ~ dt1$`Mean(WT PEITC, WT)`,
-      col = "red",
-      lw = 2)
-
-# Assuming t follows normal distribution (it does not!)
-# dt1$t <- dt1$`WT PEITC vs. WT`/dt1$sd
-# qqnorm(dt1$t)
-# abline(0, 1)
+# # p-Values for single-replica samples----
+# # Plot differences vs. means in WT PEITC vs. WT----
+# plot(dt1$`WT PEITC vs. WT` ~ dt1$`Mean(WT PEITC, WT)`,
+#      xlab = "Means",
+#      ylab = "Differences",
+#      main = "WT PEITC vs. WT")
+# # Method 1: Regularize by the above within margin of epsilon
+# epln <- 0.1
+# dt1$sd <- NA
+# 
+# for (i in 1:nrow(dt1)) {
+#   tmp <- subset(dt1,
+#                 (`Mean(WT PEITC, WT)` <= dt1$`Mean(KD PEITC, KD)`[i] + epln) &
+#                   (`Mean(WT PEITC, WT)` >= dt1$`Mean(KD PEITC, KD)`[i] - epln))
+#   dt1$sd[i] <- sd(tmp$`WT PEITC vs. WT`)
+# }
+# 
+# hist(dt1$`WT PEITC vs. WT`, 100)
+# 
+# m1 <- loess(dt1$sd ~ dt1$`Mean(WT PEITC, WT)`)
+# dt1$`Fitted SD` <- predict(m1,
+#                            newdata = data.frame(`Mean(WT PEITC, WT)` = dt1$`Mean(WT PEITC, WT)`))
+# dt1
+# dt1 <- dt1[order(dt1$`Mean(WT PEITC, WT)`), ]
+# 
+# plot(dt1$sd ~ dt1$`Mean(KD PEITC, KD)`,
+#      xlab = "Means",
+#      ylab = "SD",
+#      main = "WT PEITC vs. WT")
+# lines(dt1$`Fitted SD` ~ dt1$`Mean(WT PEITC, WT)`,
+#       col = "red",
+#       lw = 2)
+# 
+# # Assuming t follows normal distribution (it does not!)
+# # dt1$t <- dt1$`WT PEITC vs. WT`/dt1$sd
+# # qqnorm(dt1$t)
+# # abline(0, 1)
 
 # Method 2: spline over absolute values of differences
 dt1$abs.wtpeitc.wt <- abs(dt1$`WT PEITC vs. WT`)
@@ -127,37 +127,48 @@ res2 <- data.table(`Mean(WT PEITC, WT)` = m2$x,
                    `Spline SD` = m2$y)
 res2
 
-dt1 <- merge(dt1, res2, by = "Mean(WT PEITC, WT)")
+dt1 <- merge(dt1,
+             res2,
+             by = "Mean(WT PEITC, WT)")
 
-# How well the 2 methods agree?
-plot(dt1$`Fitted SD` ~ dt1$`Spline SD`,
-     xlim = c(0, 0.3),
-     ylim = c(0, 0.3),
-     main = "Comparison of SD From the Two Methods",
-     xlab = "Smoothing Spline of Absolute Differences",
-     ylab = "LOESS of Moving Window")
-abline(0, 1)
+# # How well the 2 methods agree?
+# plot(dt1$`Fitted SD` ~ dt1$`Spline SD`,
+#      xlim = c(0, 0.3),
+#      ylim = c(0, 0.3),
+#      main = "Comparison of SD From the Two Methods",
+#      xlab = "Smoothing Spline of Absolute Differences",
+#      ylab = "LOESS of Moving Window")
+# abline(0, 1)
 
-# Use Method 2 to calculate stats using only the controls
-set.seed(2017)
-tmp <- data.table(s1 = sample(dt1$KD,
-                              nrow(dt1),
-                              replace = TRUE),
-                  s2 = sample(dt1$KD,
-                              nrow(dt1),
-                              replace = TRUE))
-plot(tmp)
+# # Use Method 2 to calculate stats using only the controls
+# set.seed(2017)
+# tmp <- data.table(s1 = sample(dt1$KD,
+#                               nrow(dt1),
+#                               replace = TRUE),
+#                   s2 = sample(dt1$KD,
+#                               nrow(dt1),
+#                               replace = TRUE))
+# plot(tmp)
+# 
+# tmp$diff <- tmp$s1 - tmp$s2
+# tmp$mu <- (tmp$s1 + tmp$s2)/2
+# plot(tmp$diff ~ tmp$mu,
+#      main = "Random Samples with Replacement of WT",
+#      xlab = "Means",
+#      ylab = "Differences")
+# 
+# # WRONG! I cannot just sample at random from the vector 
+# # as each gene has expression range!
 
-tmp$diff <- tmp$s1 - tmp$s2
-tmp$mu <- (tmp$s1 + tmp$s2)/2
-plot(tmp$diff ~ tmp$mu,
-     main = "Random Samples with Replacement of WT",
-     xlab = "Means",
-     ylab = "Differences")
+dt1$t <- dt1$`WT PEITC vs. WT`/dt1$`Spline SD`
+qqnorm(dt1$t)
+qqline(dt1$t)
 
-# WRONG! I cannot just sample at random from the vector as each gene has expression range!
-
-
+cutoffs <- quantile(dt1$t,
+         probs = c(0.025, 
+                   0.975))
+hist(dt1$t, 100)
+abline(v = cutoffs)
 
 # CONTINUE HERE!!!
 
