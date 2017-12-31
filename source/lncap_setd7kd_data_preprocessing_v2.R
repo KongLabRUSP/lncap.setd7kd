@@ -12,6 +12,7 @@
 # biocLite("oligo")
 # biocLite("pd.hugene.2.0.st")
 # biocLite("hugene20sttranscriptcluster.db")
+# biocLite("edgeR")
 # biocLite("affycoretools")
 
 require(data.table)
