@@ -20,6 +20,73 @@ require(multtest)
 # Part I: Data----
 help(golub)
 data(golub)
+summary(golub)
+
+tmp <- lapply(data.table(golub),
+              function(a) {
+                a <- a[a != min(a)]
+                density(a)
+              })
+
+out <- list()
+for (i in 1:length(tmp)) {
+  out[[i]] <- data.table(smpl = i,
+                         x = tmp[[i]]$x,
+                         y = tmp[[i]]$y)
+}
+dt.dest <- rbindlist(out)
+dt.dest
+
+clr <- data.table(smpl = 1:length(golub.cl),
+                  grp = golub.cl)
+
+dt.dest <- merge(clr, dt.dest, by = "smpl")
+dt.dest$grp <- factor(dt.dest$grp,
+                      levels = c(0, 1),
+                      labels = c("ALL", "AML"))
+dt.dest
+
+ggplot(dt.dest,
+       aes(x = x,
+           y = y,
+           colour = grp)) +
+  geom_line()
+
+# Remove zeros----
+dt2 <- lapply(data.table(golub),
+              function(a) {
+                a[a == min(a)] <- NA
+                return(a)
+              }) 
+dt2 <- do.call("cbind", dt2)
+dt2
+
+plot(dt2[, 1] ~ dt2[, 38])
+# First 27 columns are ALL, last 11 are AML
+golub.cl
+
+cor(dt2,use = "complete.obs")
+
+lapply(tmp, plot, add = TRUE)
+plot(tmp[[3]])
+lapply()
+hist(tmp, 100)
+tmp <- tmp[tmp != min(tmp)]
+hist(tmp, 100, freq = FALSE)
+plot(density(tmp))
+
+# Difference between 2 samples: ALL vs. AML
+dt1 <- data.table(dt1, 
+                  golub[, c(1, 38)])
+dt1
+hist(golub[, 1], 100)
+plot(dt1$V1 ~ dt1$V2)
+
+# Remove artificial data (most likely created for log of zeros by adding 1)
+dt1 <- subset(dt1,
+              V1 != min(V1) &
+                V2 != min(V2))
+plot(dt1)
 
 # Standard deviation by gene
 dt1 <- data.table(std.all = apply(golub[, golub.cl == 0],
@@ -34,22 +101,12 @@ dt1 <- data.table(std.all = apply(golub[, golub.cl == 0],
                   mu.aml = apply(golub[, golub.cl == 1],
                                  MARGIN = 1,
                                  FUN = mean))
+plot(dt1$std.all ~ dt1$mu.all)
+plot(dt1$std.aml ~ dt1$mu.aml)
+
 n.all <- sum(golub.cl == 0)
 n.aml <- sum(golub.cl == 1)
 dt1$std.pooled <- sqrt(((n.all - 1)*dt1$std.all^2 + (n.aml - 1)*dt1$std.aml^2)/(n.all + n.aml - 2))
-
-
-# Difference between 2 samples: ALL vs. AML
-dt1 <- data.table(dt1, 
-                  golub[, c(1, 38)])
-dt1
-plot(dt1$V1 ~ dt1$V2)
-
-# Remove artificial data (most likely created for log of zeros by adding 1)
-dt1 <- subset(dt1,
-              V1 != min(V1) &
-                V2 != min(V2))
-plot(dt1)
 
 # Part II: Compare----
 # Means and differences
