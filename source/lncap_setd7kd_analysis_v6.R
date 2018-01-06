@@ -197,4 +197,11 @@ tiff(filename = "tmp/all_anno_genes_diffs_from.kd.tiff",
 print(p02)
 graphics.off() 
 
+# Save values of KD, WT and KD PEICT (Chao, 01/03/2018)----
+dt.vals <- droplevels(subset(dt1,
+                             SYMBOL %in% kdpeits.kd$SYMBOL))
+
+write.csv(dt.vals,
+          file = "tmp/KD vs WT and KD PEICT Genes and Values.csv")
+
 # sink()

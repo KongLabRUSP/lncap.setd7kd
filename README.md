@@ -15,6 +15,9 @@ https://cloudbox.dls.rutgers.edu/?ShareToken=3DE3F0B9ADC4D74CD788C3B132556598C5C
 From Christian Bixby, RUCDR, 11/17/2017
 
 ## Daily Logs
+### 01/06/2018
+* Saved selected genes' table and values (analysis v6)
+
 ### 12/19/2107
 * Added script for subsetting data  keeping only differentially methylated genes (list of genes by Chao, based on hitmaps)
 
