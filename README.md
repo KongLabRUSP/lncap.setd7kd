@@ -16,6 +16,10 @@ From Christian Bixby, RUCDR, 11/17/2017
 
 ## Daily Logs
 ### 01/06/2018
+* Added SD estimators and log2 cahnges (analysis v7)   
+* Added db/db data from NCBI for the method paper
+
+### 01/06/2018
 * Saved selected genes' table and values (analysis v6)
 
 ### 12/19/2107

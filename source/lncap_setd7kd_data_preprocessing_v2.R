@@ -14,6 +14,7 @@
 # biocLite("hugene20sttranscriptcluster.db")
 # biocLite("edgeR")
 # biocLite("affycoretools")
+# biocLite("VariantAnnotation")
 
 require(data.table)
 require(ggplot2)
@@ -29,7 +30,13 @@ l1 <- read.celfiles(filenames = paste("data/Human Cel files",
                                  lData,
                                  sep = "/"))
 l1
+class(l1)
 
+# Annotation
+l1@annotation
+?pd.hugene.2.0.st
+
+# Sample names
 sampleNames(l1) <- c("LNCaP_PEITC",
                      "LNCaP_TNF",
                      "LNCaP",
@@ -44,6 +51,11 @@ l1
 # NOTE: no mapping can be done for target probeset
 genePS <- rma(l1,
               target = "core")
+
+# genePS <- rma(l1,
+#               target = "core",
+#               background = FALSE,
+#               normalize = FALSE)
 genePS
 dt1 <- exprs(genePS)
 dt1 <- data.table(PROBEID = rownames(dt1),
@@ -51,14 +63,18 @@ dt1 <- data.table(PROBEID = rownames(dt1),
 dt1
 
 # Annotate----
-dt2 <- annotateEset(genePS,
-                    hugene20sttranscriptcluster.db)
+# dt2 <- annotateEset(genePS,
+#                     hugene20sttranscriptcluster.db)
+dt2 <- annotateEset(object = genePS,
+                    x = l1@annotation)
+
 anno <- data.table(dt2@featureData@data)
 anno$PROBEID <- as.character(anno$PROBEID)
 anno
 summary(anno$SYMBOL)
 length(unique(anno$SYMBOL))
-# 28,019 genes annotated
+# hugene20sttranscriptcluster.db: 28,019 genes annotated
+# pd.hugene.2.0.st: 34,662
 
 # Merge expressions and annotation----
 dt1 <- merge(anno, 
@@ -73,11 +89,27 @@ length(unique(dt1$SYMBOL))
 dt1 <- subset(dt1,
               !is.na(SYMBOL))
 dt1
+summary(dt1)
+
+
+tmp <- subset(dt1,
+              SYMBOL %in% c("RARRES3",
+                            "GBP2"))
+tmp
+tmp <- subset(dt1,
+              ID %in% c("NM_173505"))
+tmp
 
 # Raw expressions----
-dt0 <- oligo::exprs(l1)
+head(l1@assayData$exprs)
 head(l1@featureData@data)
+# Same as:
+dt0 <- oligo::exprs(l1)
+l1@phenoData@data
 head(dt0)
+summary(dt0)
+
+head(dt1)
 summary(dt1)
 
 # Keep only the annotated portion----
