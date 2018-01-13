@@ -204,4 +204,33 @@ dt.vals <- droplevels(subset(dt1,
 write.csv(dt.vals,
           file = "tmp/KD vs WT and KD PEICT Genes and Values.csv")
 
+# Reverse direction KD vs. WT----
+kdpeits.kd$`Diff of Logs`[kdpeits.kd$Group == "KD vs. WT"] <- (-1)*kdpeits.kd$`Diff of Logs`[kdpeits.kd$Group == "KD vs. WT"]
+levels(kdpeits.kd$Group)[1] <- "WT vs. KD"
+
+p03 <- ggplot(data = kdpeits.kd) +
+  geom_tile(aes(x =  Group,
+                y = SYMBOL,
+                fill = `Diff of Logs`)) +
+  scale_fill_gradient2(high = "green",
+                       mid = "black",
+                       low = "red",
+                       # limit = c(-2, 2),
+                       name = "Diff of Logs") +
+  scale_x_discrete(expand = c(0, 0)) +
+  scale_y_discrete("Gene",
+                   expand = c(0, 0)) +
+  ggtitle("Sorted by Most Differences in LNCaP\nChanges From KD") +
+  theme(plot.title = element_text(hjust = 0.5))
+p03
+
+tiff(filename = "tmp/all_anno_genes_diffs_from.kd_rev.tiff",
+     height = 9,
+     width = 7,
+     units = 'in',
+     res = 300,
+     compression = "lzw+p")
+print(p03)
+graphics.off() 
+
 # sink()
