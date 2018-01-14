@@ -16,8 +16,13 @@ From Christian Bixby, RUCDR, 11/17/2017
 
 ## Daily Logs
 ### 01/13/2018
-* Split the repository: moved all documents related to the no-replica manuscript to a new repo *single.repl.stat*    
+* Split the repository: moved all documents related to the no-replica manuscript to a new repo *single.repl.stat*.        
 * Added hitmaps for expressions in each group corresponding to the hitmaps of differences.    
+* For the manuscript, use the following version of the scripts:    
+a. *lncap_setd7kd_data_preprocessing_v2.R*    
+b. *lncap_setd7kd_venn_diagram_v6.R*    
+c. *lncap_setd7kd_analysis_v6.R*    
+d. *chaos_genes_values.R*
 
 ### 01/06/2018
 * Added SD estimators and log2 changes (analysis v7)   
