@@ -5,11 +5,12 @@
 # | Author: Davit Sargsyan                                                           |
 # | Created: 12/02/2017                                                              |
 # | Modified: 12/29/2017, Chao's request to flip WT and KD in the comparison         |
+# | NOTE: this script was NOT used for the paper, see previous version (v6)          |
 # |----------------------------------------------------------------------------------|
 # NOTE: remove TNF samples
 # Header----
 # Save consol output to a log file
-# sink(file = "tmp/log_lncap_setd7kd_analysis_v6.txt")
+# sink(file = "tmp/log_lncap_setd7kd_analysis_v7.txt")
 
 require(data.table)
 require(ggplot2)

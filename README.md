@@ -1,4 +1,4 @@
-##  Project: Analysis of microarray data from a LNCap/SETD7 KD experiment
+## Project: Analysis of microarray data from a LNCap/SETD7 KD experiment
 ### Study ID: 
 ### Scientist: Chao Wang
 ### Data Analysis: Chao Wang, Davit Sargsyan 
@@ -15,8 +15,12 @@ https://cloudbox.dls.rutgers.edu/?ShareToken=3DE3F0B9ADC4D74CD788C3B132556598C5C
 From Christian Bixby, RUCDR, 11/17/2017
 
 ## Daily Logs
+### 01/13/2018
+* Split the repository: moved all documents related to the no-replica manuscript to a new repo *single.repl.stat*    
+* Added hitmaps for expressions in each group corresponding to the hitmaps of differences.    
+
 ### 01/06/2018
-* Added SD estimators and log2 cahnges (analysis v7)   
+* Added SD estimators and log2 changes (analysis v7)   
 * Added db/db data from NCBI for the method paper
 
 ### 01/06/2018

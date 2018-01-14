@@ -7,7 +7,7 @@
 # |----------------------------------------------------------------------------------|
 # Header----
 # Save consol output to a log file
-# sink(file = "tmp/log_lncap_setd7kd_analysis_v1.txt")
+sink(file = "tmp/log_lncap_setd7kd_analysis_v1.txt")
 # source("http://bioconductor.org/biocLite.R")
 # biocLite("oligo")
 # biocLite("pd.hugene.2.0.st")
@@ -239,4 +239,4 @@ write.csv(dt1,
 save(dt1,
      file = "data/lncap_setd7_normilized_annotated.RData")
 
-# sink()
+sink()

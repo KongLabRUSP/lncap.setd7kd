@@ -7,7 +7,7 @@
 # |----------------------------------------------------------------------------------|
 # Header----
 # Save consol output to a log file
-# sink(file = "tmp/log_lncap_setd7kd_venn_diagram_v2.txt")
+sink(file = "tmp/log_lncap_setd7kd_venn_diagram_v6.txt")
 
 require(data.table)
 require(ggplot2)
@@ -157,4 +157,4 @@ venn.diagram(x = list(`KD PEITC vs. KD` = g2.3,
              height = 5,
              width = 5)
 
-# sink()
+sink()

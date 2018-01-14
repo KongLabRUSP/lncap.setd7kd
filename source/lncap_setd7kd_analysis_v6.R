@@ -9,7 +9,7 @@
 # NOTE: remove TNF samples
 # Header----
 # Save consol output to a log file
-# sink(file = "tmp/log_lncap_setd7kd_analysis_v6.txt")
+sink(file = "tmp/log_lncap_setd7kd_analysis_v6.txt")
 
 require(data.table)
 require(ggplot2)
@@ -17,7 +17,7 @@ require(VennDiagram)
 require(gridExtra)
 
 # Part I: Data----
-# Preprocessed data was created by 'WT_KDKD_data_preprocessing_v1.R'
+# Preprocessed data was created by 'WT_KDKD_data_preprocessing_v2.R'
 load("data/lncap_setd7_normilized_annotated.RData")
 dt1
 
@@ -125,6 +125,45 @@ tiff(filename = "tmp/all_anno_genes_diffs_wt.vs.kd.tiff",
 print(p01)
 graphics.off() 
 
+# Heatmap: all 4 groups----
+tmp <- droplevels(subset(dt1,
+                         SYMBOL %in% unique(peitc.nopeitc$SYMBOL)))
+dtl <- melt.data.table(tmp,
+                       id.vars = "SYMBOL",
+                       measure.vars = 5:8,
+                       variable.name = "Group",
+                       value.name = "Readout")
+dtl$SYMBOL <- factor(dtl$SYMBOL)
+dtl
+
+# Plot all annotated genes found in all 4 samples----
+p01.1 <- ggplot(data = dtl) +
+  geom_tile(aes(x =  Group,
+                y = SYMBOL,
+                fill = Readout),
+            color = "black") +
+  scale_fill_gradient2(high = "red",
+                       limit = range(dtl$Readout),
+                       name = "Readout") +
+  scale_x_discrete(expand = c(0, 0)) +
+  scale_y_discrete("Gene Name",
+                   expand = c(0, 0)) +
+  ggtitle("All Annotated Genes Found Across All 4 Samples") +
+  theme(axis.text.x = element_text(angle = 45,
+                                   hjust = 1),
+        # legend.position = "top",
+        plot.title = element_text(hjust = 0.5))
+p01.1
+
+tiff(filename = "tmp/all_anno_genes_wt.vs.kd.tiff",
+     height = 7,
+     width = 6,
+     units = 'in',
+     res = 300,
+     compression = "lzw+p")
+print(p01.1)
+graphics.off()
+
 # b. Diffs from KD----
 dt.diff <- melt.data.table(dt1,
                            id.vars = "SYMBOL",
@@ -197,6 +236,45 @@ tiff(filename = "tmp/all_anno_genes_diffs_from.kd.tiff",
 print(p02)
 graphics.off() 
 
+# Heatmap: all 4 groups----
+tmp <- droplevels(subset(dt1,
+                         SYMBOL %in% unique(kdpeits.kd$SYMBOL)))
+dtl <- melt.data.table(tmp,
+                       id.vars = "SYMBOL",
+                       measure.vars = 5:8,
+                       variable.name = "Group",
+                       value.name = "Readout")
+dtl$SYMBOL <- factor(dtl$SYMBOL)
+dtl
+
+# Plot all annotated genes found in all 4 samples----
+p02.1 <- ggplot(data = dtl) +
+  geom_tile(aes(x =  Group,
+                y = SYMBOL,
+                fill = Readout),
+            color = "black") +
+  scale_fill_gradient2(high = "red",
+                       limit = range(dtl$Readout),
+                       name = "Readout") +
+  scale_x_discrete(expand = c(0, 0)) +
+  scale_y_discrete("Gene Name",
+                   expand = c(0, 0)) +
+  ggtitle("All Annotated Genes Found Across All 4 Samples") +
+  theme(axis.text.x = element_text(angle = 45,
+                                   hjust = 1),
+        # legend.position = "top",
+        plot.title = element_text(hjust = 0.5))
+p02.1
+
+tiff(filename = "tmp/all_anno_genes_from.kd.tiff",
+     height = 7,
+     width = 6,
+     units = 'in',
+     res = 300,
+     compression = "lzw+p")
+print(p02.1)
+graphics.off()
+
 # Save values of KD, WT and KD PEICT (Chao, 01/03/2018)----
 dt.vals <- droplevels(subset(dt1,
                              SYMBOL %in% kdpeits.kd$SYMBOL))
@@ -233,4 +311,4 @@ tiff(filename = "tmp/all_anno_genes_diffs_from.kd_rev.tiff",
 print(p03)
 graphics.off() 
 
-# sink()
+sink()
