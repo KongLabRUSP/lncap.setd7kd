@@ -6,7 +6,6 @@
 # | Created: 12/02/2017                                                              |
 # | Modified: 12/29/2017, Chao's request to flip WT and KD in the comparison         |
 # |----------------------------------------------------------------------------------|
-# NOTE: remove TNF samples
 # Header----
 # Save consol output to a log file
 sink(file = "tmp/log_lncap_setd7kd_analysis_v6.txt")
@@ -35,12 +34,6 @@ dt1
 dt1 <- droplevels(subset(dt1,
                          select = -c(6, 9)))
 dt1
-
-# Rename columns----
-colnames(dt1)[5:8] <- c("WT_PEITC",
-                        "WT",
-                        "KD_PEITC",
-                        "KD")
 
 # Part II: hitmaps
 # Differences----
@@ -85,9 +78,6 @@ peitc.nopeitc
 peitc.nopeitc <- peitc.nopeitc[order(peitc.nopeitc$wt.vs.kd), ]
 ordered.genes <- as.character(peitc.nopeitc$SYMBOL)
 
-# gene.keep <- ordered.genes[c(1:20,
-#                              (length(ordered.genes) - 19):length(ordered.genes))]
-
 # Get all genes----
 gene.keep <- ordered.genes
 
@@ -112,13 +102,13 @@ p01 <- ggplot(data = peitc.nopeitc) +
   scale_x_discrete(expand = c(0, 0)) +
   scale_y_discrete("Gene",
                    expand = c(0, 0)) +
-  ggtitle("Sorted by Most Differences in LNCaP\nChanges in WT vs. Changes in KD") +
+  ggtitle("") +
   theme(plot.title = element_text(hjust = 0.5))
 p01
 
 tiff(filename = "tmp/all_anno_genes_diffs_wt.vs.kd.tiff",
      height = 9,
-     width = 7,
+     width = 5,
      units = 'in',
      res = 300,
      compression = "lzw+p")
@@ -133,7 +123,8 @@ dtl <- melt.data.table(tmp,
                        measure.vars = 5:8,
                        variable.name = "Group",
                        value.name = "Readout")
-dtl$SYMBOL <- factor(dtl$SYMBOL)
+dtl$SYMBOL <- factor(dtl$SYMBOL,
+                     levels = gene.keep)
 dtl
 
 # Plot all annotated genes found in all 4 samples----
@@ -146,18 +137,18 @@ p01.1 <- ggplot(data = dtl) +
                        limit = range(dtl$Readout),
                        name = "Readout") +
   scale_x_discrete(expand = c(0, 0)) +
-  scale_y_discrete("Gene Name",
+  scale_y_discrete("Gene",
                    expand = c(0, 0)) +
-  ggtitle("All Annotated Genes Found Across All 4 Samples") +
-  theme(axis.text.x = element_text(angle = 45,
-                                   hjust = 1),
+  ggtitle("") +
+  theme(axis.text.x = element_text(angle = 0,
+                                   hjust = 0.5),
         # legend.position = "top",
         plot.title = element_text(hjust = 0.5))
 p01.1
 
 tiff(filename = "tmp/all_anno_genes_wt.vs.kd.tiff",
-     height = 7,
-     width = 6,
+     height = 9,
+     width = 5,
      units = 'in',
      res = 300,
      compression = "lzw+p")
@@ -192,9 +183,6 @@ kdpeits.kd
 kdpeits.kd <- kdpeits.kd[order(kdpeits.kd$from.kd), ]
 ordered.genes <- as.character(kdpeits.kd$SYMBOL)
 
-# gene.keep <- ordered.genes[c(1:20,
-#                              (length(ordered.genes) - 19):length(ordered.genes))]
-
 # All genes
 gene.keep <- ordered.genes
 
@@ -223,13 +211,13 @@ p02 <- ggplot(data = kdpeits.kd) +
   scale_x_discrete(expand = c(0, 0)) +
   scale_y_discrete("Gene",
                    expand = c(0, 0)) +
-  ggtitle("Sorted by Most Differences in LNCaP\nChanges From KD") +
+  ggtitle("") +
   theme(plot.title = element_text(hjust = 0.5))
 p02
 
 tiff(filename = "tmp/all_anno_genes_diffs_from.kd.tiff",
      height = 9,
-     width = 7,
+     width = 5,
      units = 'in',
      res = 300,
      compression = "lzw+p")
@@ -244,7 +232,8 @@ dtl <- melt.data.table(tmp,
                        measure.vars = 5:8,
                        variable.name = "Group",
                        value.name = "Readout")
-dtl$SYMBOL <- factor(dtl$SYMBOL)
+dtl$SYMBOL <- factor(dtl$SYMBOL,
+                     levels = gene.keep)
 dtl
 
 # Plot all annotated genes found in all 4 samples----
@@ -257,18 +246,18 @@ p02.1 <- ggplot(data = dtl) +
                        limit = range(dtl$Readout),
                        name = "Readout") +
   scale_x_discrete(expand = c(0, 0)) +
-  scale_y_discrete("Gene Name",
+  scale_y_discrete("Gene",
                    expand = c(0, 0)) +
-  ggtitle("All Annotated Genes Found Across All 4 Samples") +
-  theme(axis.text.x = element_text(angle = 45,
-                                   hjust = 1),
+  ggtitle("") +
+  theme(axis.text.x = element_text(angle = 0,
+                                   hjust = 0.5),
         # legend.position = "top",
         plot.title = element_text(hjust = 0.5))
 p02.1
 
 tiff(filename = "tmp/all_anno_genes_from.kd.tiff",
-     height = 7,
-     width = 6,
+     height = 9,
+     width = 5,
      units = 'in',
      res = 300,
      compression = "lzw+p")
@@ -282,33 +271,82 @@ dt.vals <- droplevels(subset(dt1,
 write.csv(dt.vals,
           file = "tmp/KD vs WT and KD PEICT Genes and Values.csv")
 
-# Reverse direction KD vs. WT----
-kdpeits.kd$`Diff of Logs`[kdpeits.kd$Group == "KD vs. WT"] <- (-1)*kdpeits.kd$`Diff of Logs`[kdpeits.kd$Group == "KD vs. WT"]
-levels(kdpeits.kd$Group)[1] <- "WT vs. KD"
+# # Reverse direction KD vs. WT----
+# kdpeits.kd$`Diff of Logs`[kdpeits.kd$Group == "KD vs. WT"] <- (-1)*kdpeits.kd$`Diff of Logs`[kdpeits.kd$Group == "KD vs. WT"]
+# levels(kdpeits.kd$Group)[1] <- "WT vs. KD"
+# 
+# p03 <- ggplot(data = kdpeits.kd) +
+#   geom_tile(aes(x =  Group,
+#                 y = SYMBOL,
+#                 fill = `Diff of Logs`)) +
+#   scale_fill_gradient2(high = "green",
+#                        mid = "black",
+#                        low = "red",
+#                        # limit = c(-2, 2),
+#                        name = "Diff of Logs") +
+#   scale_x_discrete(expand = c(0, 0)) +
+#   scale_y_discrete("Gene",
+#                    expand = c(0, 0)) +
+#   ggtitle("Sorted by Most Differences in LNCaP\nChanges From KD") +
+#   theme(plot.title = element_text(hjust = 0.5))
+# p03
+# 
+# tiff(filename = "tmp/all_anno_genes_diffs_from.kd_rev.tiff",
+#      height = 9,
+#      width = 7,
+#      units = 'in',
+#      res = 300,
+#      compression = "lzw+p")
+# print(p03)
+# graphics.off() 
 
-p03 <- ggplot(data = kdpeits.kd) +
-  geom_tile(aes(x =  Group,
-                y = SYMBOL,
-                fill = `Diff of Logs`)) +
-  scale_fill_gradient2(high = "green",
-                       mid = "black",
-                       low = "red",
-                       # limit = c(-2, 2),
-                       name = "Diff of Logs") +
-  scale_x_discrete(expand = c(0, 0)) +
-  scale_y_discrete("Gene",
+# Plot all gene expressions
+dt1[, 5:8]
+sqrt(nrow(dt1))
+179*178 - nrow(dt1)
+
+# Add 58 rows of NAs to make a 179*178 matrix
+tmp <- data.table(matrix(NA,
+                         nrow = 179*178 - nrow(dt1),
+                         ncol = 4))
+colnames(tmp) <- colnames(dt1)[5:8]
+tmp
+tmp <- rbindlist(list(dt1[, 5:8],
+                      tmp))
+tmp$rownum <- rev(rep(1:179, 178))
+tmp$colnum <- rep(1:178, each = 179)
+tmp <- melt.data.table(tmp,
+                       id.vars = c("rownum",
+                                   "colnum"),
+                       measure.vars = 1:4)
+tmp
+
+p04<- ggplot(data = tmp) +
+  facet_wrap(~ variable) +
+  geom_tile(aes(x = colnum,
+                y = rownum,
+                fill = value)) +
+  scale_fill_gradient2(high = "red",
+                       limit = range(tmp$value,
+                                     na.rm = TRUE),
+                       name = "log2(expr)") +
+  scale_x_discrete("",
                    expand = c(0, 0)) +
-  ggtitle("Sorted by Most Differences in LNCaP\nChanges From KD") +
-  theme(plot.title = element_text(hjust = 0.5))
-p03
+  scale_y_discrete("",
+                   expand = c(0, 0)) +
+  ggtitle("Normalized Expressions of 31,804 Genes") +
+  theme(axis.text.x = element_text(angle = 0,
+                                   hjust = 0.5),
+        plot.title = element_text(hjust = 0.5))
+p04
 
-tiff(filename = "tmp/all_anno_genes_diffs_from.kd_rev.tiff",
-     height = 9,
-     width = 7,
+tiff(filename = "tmp/all_anno_genes_norm_expr.tiff",
+     height = 6,
+     width = 6,
      units = 'in',
      res = 300,
      compression = "lzw+p")
-print(p03)
-graphics.off() 
+print(p04)
+graphics.off()
 
 sink()

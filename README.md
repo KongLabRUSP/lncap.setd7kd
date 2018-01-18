@@ -15,6 +15,9 @@ https://cloudbox.dls.rutgers.edu/?ShareToken=3DE3F0B9ADC4D74CD788C3B132556598C5C
 From Christian Bixby, RUCDR, 11/17/2017
 
 ## Daily Logs
+### 01/17/2018
+* Added normalized expression plot for all genes; corrected all labels.
+
 ### 01/13/2018
 * Split the repository: moved all documents related to the no-replica manuscript to a new repo *single.repl.stat*.        
 * Added hitmaps for expressions in each group corresponding to the hitmaps of differences.    
