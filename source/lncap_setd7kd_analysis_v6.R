@@ -349,4 +349,90 @@ tiff(filename = "tmp/all_anno_genes_norm_expr.tiff",
 print(p04)
 graphics.off()
 
+# Plot 150 genes with teh most differential expressions (i.e. variability)
+# a. highest range
+dt1[, 5:8]
+dt1$rng.diff <- apply(X = dt1[, 5:8],
+                      MARGIN = 1,
+                      FUN = function(a) {
+                        return(diff(range(a, 
+                                          na.rm = TRUE)))
+                      })
+hist(log(dt1$rng.diff), 
+     100,
+     xlab = "Log of Range Difference",
+     main = "Distribution of Range Differences")
+
+dt1$std <- apply(X = dt1[, 5:8],
+                 MARGIN = 1,
+                 FUN = function(a) {
+                   return(sd(a, 
+                             na.rm = TRUE))
+                 })
+hist(log(dt1$std), 
+     100,
+     xlab = "Log of SD",
+     main = "Distribution of SD")
+
+plot(log(dt1$rng.diff) ~ log(dt1$std))
+
+# Top 150 genes (by SD)
+ndx <- which(rank(dt1$std) > (nrow(dt1) - 150))
+ndx
+
+tmp <- dt1[ndx, ]
+tmp
+summary(tmp)
+hist(dt1$std, 
+     100,
+     xlab = "SD",
+     main = "Distribution of SD")
+abline(v = min(tmp$std),
+       lty = 2)
+arrows(x0 = min(tmp$std),
+       y0 = 1500,
+       x1 = max(tmp$std),
+       y1 = 1500)
+
+# Hitmap----
+dtl <- melt.data.table(tmp,
+                       id.vars = "SYMBOL",
+                       measure.vars = 5:8,
+                       variable.name = "Group",
+                       value.name = "Readout")
+dtl$SYMBOL <- factor(dtl$SYMBOL)
+dtl
+
+dtl$Readout <- scale(dtl$Readout)
+
+# Plot all annotated genes found in all 4 samples----
+p05 <- ggplot(data = dtl) +
+  geom_tile(aes(x =  Group,
+                y = SYMBOL,
+                fill = Readout)) +
+  scale_fill_gradient2(low = "red",
+                       mid = "white",
+                       high = "blue",
+                       limit = range(dtl$Readout),
+                       name = "Normalized Expr") +
+  scale_x_discrete(expand = c(0, 0)) +
+  scale_y_discrete("Gene",
+                   expand = c(0, 0)) +
+  ggtitle("") +
+  theme(axis.text.x = element_text(angle = 0,
+                                   hjust = 0.5),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        plot.title = element_text(hjust = 0.5))
+p05
+
+tiff(filename = "tmp/top_150_most_diff_expr.tiff",
+     height = 9,
+     width = 5,
+     units = 'in',
+     res = 300,
+     compression = "lzw+p")
+print(p05)
+graphics.off()
+
 sink()
